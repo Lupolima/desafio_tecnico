@@ -6,14 +6,14 @@ import os        # Biblioteca para interagir com o sistema
 import sys       # Biblioteca para encerrar o programa com códigos de erro
 import argparse  # Biblioteca para tratar argumentos de linha de comando
 
-# adicionei pois enquanto estava fazendo testes recebi um FORBBIDEN/Proibido de novas requisicoes da API do github
+# adicionei pois enquanto estava fazendo testes recebi um FORBBIDEN/Bloqueio pelo GitHub por excesso de requisições
 requests_cache.install_cache('github_cache', expire_after=28800)
 
 # CLASSE 1: O MODELO (ENTIDADE)
+# Representa um repositório vindo da API somente com os dados necessarios
 class Repository:
-    # Representa um repositório vindo da API somente com os dados necessarios
+    # Constructor - # Armazena somente as informações obrigatorias do repositório que vem do from_api
     def __init__(self, name, full_name, html_url, language, stars, forks, updated_at):
-        # Armazena as informações do repositório
         self.name = name
         self.full_name = full_name
         self.html_url = html_url
@@ -24,7 +24,8 @@ class Repository:
 
     @classmethod
     def from_api(cls, data: dict):
-        #Método factory (ou similar) para criar um objeto Repository
+        # Extractor - Cria um objeto Repository extraindo só os dados importantes que vem do GitHubClient
+        # return para o __init__
         return cls(
             name=data.get("name"),
             full_name=data.get("full_name"),
@@ -45,8 +46,8 @@ class GitHubClient:
 
             # Verifica se a resposta veio do cache comentei para não aparecer na saida
             is_from_cache = getattr(response, 'from_cache', False)
-            #if is_from_cache:
-            #    print(f"DEBUG: Dados de '{username}' foram carregados do cache local.")
+            if is_from_cache:
+                print(f"DEBUG: Dados de '{username}' foram carregados do cache local.")
             
             # Tratamento de erro: usuário inexistente (404)
             if response.status_code == 404:
@@ -60,10 +61,10 @@ class GitHubClient:
             response.raise_for_status() 
             
             data = response.json()
-            return [Repository.from_api(repo) for repo in data] # Organiza dados em objetos
+            return [Repository.from_api(repo) for repo in data] # Organiza dados em objetos (List Comprehension)
             
         except requests.exceptions.ConnectionError:
-            raise Exception("falha de conexão") # Informa claramente falha de conexão
+            raise Exception("falha de conexão") # Falha de internet
         except Exception as e:
             raise e
 
@@ -120,9 +121,15 @@ class FileStorage:
             writer.writerow(["Total de Repos", resumo["total_repos"]])
             writer.writerow(["Total de Estrelas", resumo["total_stars"]])
             writer.writerow([])
+            
             writer.writerow(["Linguagem", "Quantidade"])
             for lang, qtd in resumo["linguagens"].items():
                 writer.writerow([lang, qtd])
+            writer.writerow([]) # Linha em branco
+
+            writer.writerow(["Top 5 Repositórios", "Estrelas"])
+            for repo in resumo["top_5"]:
+                writer.writerow([repo.name, repo.stargazers_count])
 
 # PRINCIPAL
 if __name__ == "__main__":
@@ -137,7 +144,7 @@ if __name__ == "__main__":
     output_dir = args.out if args.out else input("Digite o diretório de saída (ex: ./output): ")
 
     try:
-        # Inicia serviços
+        # Inicia serviços (instanciando a Classe)
         client = GitHubClient()
         storage = FileStorage(output_dir)
         service = ReportService()
@@ -159,3 +166,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Erro: {e}")  
         sys.exit(1)
+
