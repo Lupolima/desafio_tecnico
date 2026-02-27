@@ -4,7 +4,7 @@ Projeto desenvolvido como desafio técnico. Esta aplicação conecta na API púb
 
 ## Funcionalidades
 1. **Coleta de Dados**: Consome a REST API do GitHub para buscar repositórios de qualquer usuário.
-2. **Relatório**: Calcula total de repositórios, total de estrelas e contagem por linguagem.
+2. **Relatório**: Calcula total de repositórios, total de estrelas, contagem por linguagem e os 5 maiores repositórios
 3. **Persistência**: Salva os dados em disco em JSON e o resumo em CSV.
 4. **Otimização**: Utiliza cache local para evitar o consumo excessivo da cota da API (Rate Limit)
 
