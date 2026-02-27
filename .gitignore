@@ -1,0 +1,10 @@
+# O asterisco atua como um curinga, dizendo ao Git para ignorar absolutamente todos os arquivos e pastas deste diretorio
+*
+
+# O ponto de exclamacao cria uma excecao a regra anterior, obrigando o Git a enxergar e rastrear apenas o main.py
+!main.py
+!README.md
+requirements.txt
+
+# Esta linha cria outra excecao para garantir que este proprio arquivo de regras tambem seja enviado e salvo no seu GitHub
+!.gitignore
